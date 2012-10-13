@@ -55,7 +55,7 @@ public class ChooseServiceActivity extends Activity {
 	private TextView txtPicasa;
 	private TextView txtFlickr;
 	private TextView txtInstagram;
-    private LinearLayout linearLayoutServices;
+	private LinearLayout linearLayoutServices;
 	private LinearLayout take_photos;
 	private LinearLayout facebook;
 	private LinearLayout picasa;
@@ -71,26 +71,26 @@ public class ChooseServiceActivity extends Activity {
 	private ImageLoader loader;
 	private PhotoPickerPlusIntentWrapper ppWrapper;
 
-    private TextView textViewLabelUser;
+	private TextView textViewLabelUser;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-	requestWindowFeature(Window.FEATURE_NO_TITLE);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.service_layout);
 
 		loader = ImageLoader.getLoader(ChooseServiceActivity.this);
 
 		ppWrapper = new PhotoPickerPlusIntentWrapper(getIntent());
 
-	linearLayoutServices = (LinearLayout) findViewById(R.id.services_linear);
-	textViewLabelUser = (TextView) findViewById(R.id.txt_user);
-	PhotoPickerPlusIntentWrapper photoPickerPlusIntentWrapper = new PhotoPickerPlusIntentWrapper(
-		getIntent());
-	if (photoPickerPlusIntentWrapper.areServicesHidden()) {
-	    linearLayoutServices.setVisibility(View.GONE);
-	    textViewLabelUser.setVisibility(View.GONE);
-	}
+		linearLayoutServices = (LinearLayout) findViewById(R.id.services_linear);
+		textViewLabelUser = (TextView) findViewById(R.id.txt_user);
+		PhotoPickerPlusIntentWrapper photoPickerPlusIntentWrapper = new PhotoPickerPlusIntentWrapper(
+				getIntent());
+		if (photoPickerPlusIntentWrapper.areServicesHidden()) {
+			linearLayoutServices.setVisibility(View.GONE);
+			textViewLabelUser.setVisibility(View.GONE);
+		}
 		txtFacebook = (TextView) findViewById(R.id.txt_facebook);
 		txtFacebook.setTag(AccountType.FACEBOOK);
 		txtPicasa = (TextView) findViewById(R.id.txt_picasa);
@@ -233,6 +233,19 @@ public class ChooseServiceActivity extends Activity {
 								.toString();
 					} catch (FileNotFoundException e) {
 						Log.d(TAG, "", e);
+					} catch (OutOfMemoryError oe) {
+						Log.d(TAG, "", oe);
+
+						Uri uri = MediaDAO
+								.getLastPhotoFromCameraPhotos(getApplicationContext());
+						if (uri.toString().equals("")) {
+							NotificationUtil.makeToast(
+									getApplicationContext(),
+									getResources().getString(
+											R.string.no_camera_photos));
+						} else {
+							path = uri.toString();
+						}
 					}
 				} else {
 					Log.e(TAG, "Bug " + data.getData().getPath());
@@ -311,8 +324,8 @@ public class ChooseServiceActivity extends Activity {
 			Uri uri = MediaDAO
 					.getLastPhotoFromCameraPhotos(getApplicationContext());
 			if (uri.toString().equals("")) {
-		NotificationUtil.makeToast(getApplicationContext(),
-			getResources().getString(R.string.no_camera_photos));
+				NotificationUtil.makeToast(getApplicationContext(),
+						getResources().getString(R.string.no_camera_photos));
 			} else {
 				final GCAccountMediaModel model = new GCAccountMediaModel();
 				model.setLargeUrl(uri.toString());
